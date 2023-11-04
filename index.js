@@ -21,7 +21,7 @@ class Planet {
 }
 
 class Model {
-    static #G = 6.67430*Math.pow(10,-11);
+    static G = 6.67430*Math.pow(10,-11);
 
     time;
     dt;
@@ -35,85 +35,103 @@ class Model {
         this.defferentScheme = defferentScheme;
     }
 
-    calaculateAccelerationXY(numberOfPlanet) {
-        let ax=0;
-        let ay=0;
-        let currentPlanet = this.planets[numberOfPlanet];
-        for(let i = 0; i < this.planets.length; ++i) {
-            if (i != numberOfPlanet) {
-                let planet = this.planets[i];
-                ax += Model.#G * (planet.mass*(currentPlanet.x - planet.x)) / 
-                        Math.pow( Math.sqrt( Math.pow(currentPlanet.x-planet.x,2)+Math.pow(currentPlanet.y-planet.y,2) ), 3);
-                ay += Model.#G * (planet.mass*(currentPlanet.y - planet.y)) / 
-                        Math.pow( Math.sqrt( Math.pow(currentPlanet.x-planet.x,2)+Math.pow(currentPlanet.y-planet.y,2) ), 3);
-            }
-        }
-        return [-ax, -ay];
-    }
-
     updateCoordinatePlanets() {
         for(let i = 0; i < this.planets.length; ++i) {
-            let currentPlanet = this.planets[i];
-            const [ax, ay] = this.calaculateAccelerationXY(i);
-            //for x
-            this.defferentScheme.setVarsForNextStep(currentPlanet.x,currentPlanet.Vx, ax);
-            currentPlanet.x = this.defferentScheme.calculateCoordinate();
-            currentPlanet.Vx = this.defferentScheme.calculateSpeed();
-            //for y
-            this.defferentScheme.setVarsForNextStep(currentPlanet.y,currentPlanet.Vy, ay);
-            currentPlanet.y = this.defferentScheme.calculateCoordinate();
-            currentPlanet.Vy = this.defferentScheme.calculateSpeed();
+            this.defferentScheme.setVarsForNextStep(i, this.planets);
+            [planets[i].x, planets[i].y] = this.defferentScheme.calculateCoordinate();
+            
+            [planets[i].Vx, planets[i].Vy] = this.defferentScheme.calculateSpeed();
         }
     }    
 }
 
 class EilerScheme {
     dt;
-    currV;
-    currA;
-    currX;
+    currPlanet;
+    indexCurrplanet;
+    planets;
+    ax;
+    ay;
 
     constructor(dt) {
         this.dt = dt;
     }
 
-    setVarsForNextStep(currX, currV, currA){
-        this.currA = currA;
-        this.currV = currV;
-        this.currX = currX;
+    setVarsForNextStep(indexCurrplanet, planets){
+        this.indexCurrplanet =  indexCurrplanet;
+        this.planets = planets
+        
+        this.currPlanet = planets[indexCurrplanet];
+        [this.ax, this.ay] = this.calaculateAccelerationXY();
     }
 
+    calaculateAccelerationXY() {
+        let ax=0;
+        let ay=0;
+        for(let i = 0; i < this.planets.length; ++i) {
+            if (this.indexCurrplanet != i) {
+                let planet = this.planets[i];
+                ax += Model.G * (planet.mass*(this.currPlanet.x - planet.x)) / 
+                        Math.pow( Math.sqrt( Math.pow(this.currPlanet.x-planet.x,2)+Math.pow(this.currPlanet.y-planet.y,2) ), 3);
+                ay += Model.G * (planet.mass*(this.currPlanet.y - planet.y)) / 
+                        Math.pow( Math.sqrt( Math.pow(this.currPlanet.x-planet.x,2)+Math.pow(this.currPlanet.y-planet.y,2) ), 3);
+            }
+        }
+        return [-ax, -ay];
+    }
+
+
     calculateSpeed() {
-        return this.currV + this.currA * this.dt; 
+        return [this.currPlanet.Vx + this.ax * this.dt, this.currPlanet.Vy + this.ay * this.dt]; 
     }
 
     calculateCoordinate() {
-        return this.currX + this.currV * this.dt;
+        return [this.currPlanet.x + this.currPlanet.Vx * this.dt, this.currPlanet.y + this.currPlanet.Vy * this.dt];
     }
  }
 
 class EilerKramerScheme {
     dt;
-    currV;
-    currA;
-    currX;
+    currPlanet;
+    indexCurrplanet;
+    planets;
+    ax;
+    ay;
 
     constructor(dt) {
         this.dt = dt;
     }
 
-    setVarsForNextStep(currX, currV, currA){
-        this.currA = currA;
-        this.currV = currV;
-        this.currX = currX;
+    setVarsForNextStep(indexCurrplanet, planets){
+        this.indexCurrplanet =  indexCurrplanet;
+        this.planets = planets
+        
+        this.currPlanet = planets[indexCurrplanet];
+        this.calaculateAccelerationXY();
     }
-
     calculateSpeed() {
-        return this.currV + this.currA * this.dt; 
+        return [this.currPlanet.Vx + this.ax * this.dt, this.currPlanet.Vy + this.ay * this.dt]
     }
 
     calculateCoordinate() {
-        return this.currX + this.calculateSpeed() * this.dt;
+        let [vx,vy] = this.calculateSpeed();
+        return [this.currPlanet.x + vx * this.dt, this.currPlanet.y + vy * this.dt];
+    }
+
+    calaculateAccelerationXY() {
+        let ax=0;
+        let ay=0;
+        for(let i = 0; i < this.planets.length; ++i) {
+            if (this.indexCurrplanet != i) {
+                let planet = this.planets[i];
+                ax += Model.G * (planet.mass*(this.currPlanet.x - planet.x)) / 
+                        Math.pow( Math.sqrt( Math.pow(this.currPlanet.x-planet.x,2)+Math.pow(this.currPlanet.y-planet.y,2) ), 3);
+                ay += Model.G * (planet.mass*(this.currPlanet.y - planet.y)) / 
+                        Math.pow( Math.sqrt( Math.pow(this.currPlanet.x-planet.x,2)+Math.pow(this.currPlanet.y-planet.y,2) ), 3);
+            }
+        }
+        this.ax = -ax;
+        this.ay = -ay;
     }
  }
 
@@ -158,7 +176,7 @@ planet2 = new Planet(1.5 * Math.pow(10, 11), 0, 0, 29782, 5.9722 * Math.pow(10,2
 planet3 = new Planet(58 * Math.pow(10, 9), 0, 0, 47400, 3.33 * Math.pow(10,23), 1)
 planets = [planet1, planet2, planet3];
 let dt = 10000
-model = new Model(31536000, dt, planets, new VerleScheme(dt));
+model = new Model(31536000, dt, planets, new EilerKramerScheme(dt));
 
 requestAnimationFrame(tick)
 
