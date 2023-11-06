@@ -7,6 +7,43 @@
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
+    <table class="table-for-params">
+        <thead>
+            <tr>
+                <th>X</th>
+                <th>Y</th>
+                <th>Vx</th>
+                <th>Vy</th>
+                <th>Масса</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- <tr>
+              <td>0</td>
+              <td>Paige Bean</td>
+              <td>+1 (871) 458-2959</td>
+              <td>MOREGANIC</td>
+              <td>2018-12-27T11:28:50 -01:00</td>
+              <td>false</td>
+              <td><input type="submit" value="ok"></td>
+            </tr> -->
+        </tbody>
+    </table>
+    <script>
+       var myHtmlContent = "<h3>hello</h3>"
+        var tableRef = document.getElementsByClassName('table-for-params')[0].getElementsByTagName('tbody')[0];;
+
+        var newRow = tableRef.insertRow(tableRef.rows.length);
+        var newRow = tableRef.insertRow(0);
+
+        // Insert a cell in the row at index 0
+        var newCell = newRow.insertCell(0);
+
+        // Append a text node to the cell
+        var newText = document.createTextNode("New top row");
+        newCell.appendChild(newText);
+
+    </script>
     <canvas class="plot">
     </canvas>
         <script src = "index.js"></script>
