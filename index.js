@@ -1,7 +1,4 @@
-// import Model from "Model";
-// import EilerScheme from "./defferenceShemes"
-// import Planet from "./planet";
-//Считаем один раз через формулы ускорение, потом численно?
+//logic
 class Planet {
     x;
     y;
@@ -164,15 +161,39 @@ class EilerKramerScheme extends Scheme {
     }
  }
 
+ //view
+    function addrow() {
+        const IDs = ['X','Y','Vx','Vy','M']; 
+        let values = []; 
+        let tableRef = document.getElementsByClassName('table-for-params')[0].getElementsByTagName('tbody')[0];;
+
+        let newRow = tableRef.insertRow(tableRef.rows.length);
+        for (let j = 0; j < 5; j++) {
+            let newCell = newRow.insertCell(j); 
+            newCell.innerHTML = document.getElementById(IDs[j]).value;
+            values[j] =  Number(document.getElementById(IDs[j]).value);
+        }
+        let newCell = newRow.insertCell(5); 
+        newCell.innerHTML = tableRef.rows.length;
+        planets.push(new Planet(values[0], values[1], values[2], values[3], values[4], 2));
+    }
+
+    function show() {
+        model = new Model(31536000, dt, planets, new BimanScheme(dt));
+    }
+
+    function addSheme() {
+
+    }
+
 let canvas = document.querySelector("canvas");
 context = canvas.getContext('2d')
+// 1.9891e30  | 1.496e11 0 0 29782 5.9722e24 | 57.91e9 0 0 47400 3.33e23
 
-planet1 = new Planet(0, 0, 0, 0, 1.9891 * Math.pow(10, 30), 7)
-planet2 = new Planet(1.496 * Math.pow(10, 11), 0, 0, 29782, 5.9722 * Math.pow(10,24), 2)
-planet3 = new Planet(57.91 * Math.pow(10, 9), 0, 0, 47400, 3.33 * Math.pow(10,23), 1)
-planets = [planet1, planet2, planet3];
-let dt = 10000
-model = new Model(31536000, dt, planets, new BimanScheme(dt));
+let model;
+let planets = [];
+let dt = 10000;
+let sheme;
 
 requestAnimationFrame(tick)
 
