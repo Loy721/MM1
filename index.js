@@ -15,7 +15,7 @@ class Planet {
     radius;
     firstStep = true;
 
-    constructor(x, y, Vx, Vy, mass, radius) {
+    constructor(x, y, Vx, Vy, mass) {
         this.x = x;
         this.y = y;
         this.lastX = x;
@@ -25,19 +25,18 @@ class Planet {
         this.Ax = 0;
         this.Ay = 0;
         this.mass = mass;
-        this.radius = radius;
+        this.radius = Math.ceil(mass * 5 / maxWeight);
     }
 
     setSpeed([x, y]){
         this.lastX = this.x;
         this.lastY = this.y;
-
         this.x = x;
         this.y = y;
     }
 
     calaculateAccelerationXY(planets) {
-        this.lastAx = this.Ax
+        this.lastAx = this.Ax;
         this.lastAy = this.Ay;
 
         let ax=0;
@@ -218,12 +217,18 @@ class EilerKramerScheme extends Scheme {
         }
         let newCell = newRow.insertCell(5); 
         newCell.innerHTML = tableRef.rows.length;
-        planets.push(new Planet(values[0], values[1], values[2], values[3], values[4], 2));
+        if(maxWidth < values[0])
+            maxWidth = values[0];
+        if(maxWeight < values[4])
+            maxWeight = values[4];
+        planets.push(new Planet(values[0], values[1], values[2], values[3], values[4]));
     }
 
     function show() {
         model = new Model(document.getElementById("time").value, document.getElementById("dt").value, planets, typeOfSheme);
-        requestAnimationFrame(tick);
+        maxWidth *= 5;
+        tick();
+        //paintPlanets();
     }
 
     function addSheme(shemeName) {
@@ -243,10 +248,11 @@ context = canvas.getContext('2d');
 let model;
 let planets = [];
 let typeOfSheme = "E";
-let currentTime = 0;
+
+let maxWidth = 0; //для задания границ плота
+let maxWeight = 0; //для задания радиуса планет
+
 function tick() {
-    context.fill();
-    context.clearRect(0, 0, canvas.width, canvas.height);
     // q++;
     // context.font = "700 5px Roboto, sans-serif";
     // context.fillStyle = "#000";
@@ -255,27 +261,46 @@ function tick() {
     // context.fillText(q, 200, 100)
     paintPlanets();
     if(model.currentTime <= model.time)
-    requestAnimationFrame(tick);
+        requestAnimationFrame(tick);
 }
 
 function paintPlanets() {
-    currentTime
-    model.updateCoordinatePlanets();
-    for(let i = 0; i < model.planets.length; ++i){
-        context.beginPath();
-        currPlanet = model.planets[i];
-        paintPlanet(currPlanet.x, currPlanet.y, currPlanet.radius, 'red');
+    //while(model.currentTime < model.time) {    
+    // setTimeout( function ds(){ 
+    //         context.fill();
+    //         context.clearRect(0, 0, canvas.width, canvas.height);
+    for(let speed = 0; speed < document.getElementById("sliderRange").value; ++speed){
+        
         context.fill();
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        model.updateCoordinatePlanets();
+        for(let i = 0; i < model.planets.length; ++i){
+            context.beginPath();
+            currPlanet = model.planets[i];
+            let radius = Math.ceil(currPlanet.mass * 5 / maxWeight);
+            paintPlanet(currPlanet.x, currPlanet.y, radius, 'red');
+            context.fill();
+        }
+        document.getElementById("TotalEnergy").value = model.totalEnergy();
+        document.getElementById("CurrentTime").value = model.currentTime;
+        [document.getElementById("CenterMassVx").value, document.getElementById("CenterMassVy").value]  = model.centerMassV(); 
+    //    }, 100);
+        //}
     }
-    
-    document.getElementById("TotalEnergy").value = model.totalEnergy();
-    document.getElementById("CurrentTime").value = model.currentTime;
-    [document.getElementById("CenterMassVx").value, document.getElementById("CenterMassVy").value]  = model.centerMassV();
 }
 
 const MAX_LENGTH = Math.pow(10, 12);
 function paintPlanet(x, y, radius, color){
-    context.arc(canvas.width / 2 + (x / MAX_LENGTH) * canvas.width,
-                    canvas.height / 2 + (y / MAX_LENGTH) * canvas.height, radius, 0, Math.PI*2);
+    context.arc(canvas.width / 2 + (x / maxWidth) * canvas.width,
+                    canvas.height / 2 + (y / maxWidth) * canvas.height, radius, 0, Math.PI*2);
     context.fillStyle = color;
 }
+
+////sliderRange
+var rangeslider = document.getElementById("sliderRange"); 
+var output = document.getElementById("demo"); 
+output.innerHTML = rangeslider.value; 
+  
+rangeslider.oninput = function() { 
+  output.innerHTML = this.value;
+} 

@@ -23,8 +23,8 @@
                     <label> Время моделирования: </label>
                 </div>
                 <div style="display: flex; flex-direction: column;">
-                    <input type="text" id="dt">
-                    <input type="text" id="time">
+                    <input type="text" id="dt" value=3600>
+                    <input type="text" id="time" value=31536000>
                 </div>
                 <input type="submit" value="ok" style="height: 25px; margin-left: 5px;" onclick="show()">
             </div>
@@ -43,16 +43,23 @@
                     </tbody>
                 </table>
         </div>
-        <div style="display: flex; margin-left: 50px;">
-            <div>
-                <div class="header-label">Общая Эенргия</div><input style="width: 200px;" type="number" id="TotalEnergy" readonly>
-                <div class="header-label">Текущее время</div><input style="width: 200px;" type="number" id="CurrentTime" readonly>
+        <div style="display: flex; flex-direction: column; align-items: center;">
+            <div class="rangeslider"> 
+                <input type="range" min="1" max="100" value="10"
+                                class="myslider" id="sliderRange"> 
+                <p>Value: <span id="demo"></span></p> 
             </div>
-            <div style="margin-left:50px;">
-                <div class="header-label">Центр масс Vx</div><input style="width: 200px;" type="number" id="CenterMassVx" readonly>
-                <div class="header-label">Центр масс Vy</div><input style="width: 200px;" type="number" id="CenterMassVy" readonly>
+            <div style="display: flex; margin-left: 50px;">
+                <div>
+                    <div class="header-label">Общая Эенргия</div><input style="width: 200px;" type="number" id="TotalEnergy" readonly>
+                    <div class="header-label">Текущее время</div><input style="width: 200px;" type="number" id="CurrentTime" readonly>
+                </div>
+                <div style="margin-left:50px;">
+                    <div class="header-label">Центр масс Vx</div><input style="width: 200px;" type="number" id="CenterMassVx" readonly>
+                    <div class="header-label">Центр масс Vy</div><input style="width: 200px;" type="number" id="CenterMassVy" readonly>
+                </div>
             </div>
-        </div>
+        </div> 
     </div>
         <canvas class="plot">
     </canvas>
