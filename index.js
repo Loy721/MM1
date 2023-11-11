@@ -1,3 +1,4 @@
+//вопрос по скорости в кин энергии
 //logic
 class Planet {
     x;
@@ -59,17 +60,33 @@ class Model {
 
     time;
     dt;
+    currentTime;
     planets;
     defferentScheme;
 
     constructor(time, dt, planets, defferentScheme){
         this.time = time;
+        this.currentTime = 0;
         this.planets = planets;
         this.dt = dt;
-        this.defferentScheme = defferentScheme;
+        switch(defferentScheme){
+            case "E":
+                this.defferentScheme =  new EilerScheme(dt);
+                break;        
+            case "E-K":
+                this.defferentScheme =  new EilerKramerScheme(dt);
+                break;
+            case "V":
+                this.defferentScheme =  new VerleScheme(dt);
+                break;
+            case "B":
+                this.defferentScheme =  new BimanScheme(dt);
+                break;
+        }
     }
 
     updateCoordinatePlanets() {
+        this.currentTime += Number(this.dt);
         for(let i = 0; i < this.planets.length; ++i) {
             planets[i].calaculateAccelerationXY(this.planets);        
             
@@ -79,6 +96,32 @@ class Model {
             [planets[i].Vx, planets[i].Vy] = this.defferentScheme.calculateSpeed();
         }
     }    
+
+    centerMassV(){
+        let M = 0;
+        let mVx = 0;
+        let mVy = 0;
+        for(let i = 0; i < planets.length; ++i) {
+            mVx += planets[i].mass *  planets[i].Vx;
+            mVy += planets[i].mass *  planets[i].Vy;
+            M += planets[i].mass;
+        }
+        return [mVx/M, mVy/M];
+    }
+
+    totalEnergy(){
+        let totalEnergy = 0;
+        for(let i = 0; i < planets.length; ++i){
+            for(let j = 0; j < planets ; ++j){
+                if  (i != j){
+                    totalEnergy -= this.G * planets[i] * planets[j] / 
+                            Math.sqrt(Math.pow(planets[j].x - planets[i].x, 2) + Math.pow(planets[j].y - planets[i].y, 2));
+                }
+            }
+            totalEnergy += planets[i].mass * Math.sqrt(Math.pow(planets[i].Vx, 2) + Math.pow(planets[i].Vx, 2)) / 2
+        }
+        return totalEnergy;
+    }
 }
 
 class Scheme {
@@ -179,39 +222,55 @@ class EilerKramerScheme extends Scheme {
     }
 
     function show() {
-        model = new Model(31536000, dt, planets, new BimanScheme(dt));
+        model = new Model(document.getElementById("time").value, document.getElementById("dt").value, planets, typeOfSheme);
+        requestAnimationFrame(tick);
     }
 
-    function addSheme() {
-
+    function addSheme(shemeName) {
+        let radiosNames = ["V", "E", "E-K", "B"]
+        for(let i = 0; i < 4; ++i){
+            if(document.getElementById(radiosNames[i]).value != shemeName) {
+                document.getElementById(radiosNames[i]).checked = false;
+            }
+        }
+        typeOfSheme = shemeName;
     }
 
 let canvas = document.querySelector("canvas");
-context = canvas.getContext('2d')
+context = canvas.getContext('2d');
 // 1.9891e30  | 1.496e11 0 0 29782 5.9722e24 | 57.91e9 0 0 47400 3.33e23
-
+//3600 31536000
 let model;
 let planets = [];
-let dt = 10000;
-let sheme;
-
-requestAnimationFrame(tick)
-
+let typeOfSheme = "E";
+let currentTime = 0;
 function tick() {
-    requestAnimationFrame(tick);
+    context.fill();
     context.clearRect(0, 0, canvas.width, canvas.height);
-    paintPlanets()
+    // q++;
+    // context.font = "700 5px Roboto, sans-serif";
+    // context.fillStyle = "#000";
+    // context.textAlign = 'center';
+    // context.textBaseline = 'middle';
+    // context.fillText(q, 200, 100)
+    paintPlanets();
+    if(model.currentTime <= model.time)
+    requestAnimationFrame(tick);
 }
 
 function paintPlanets() {
+    currentTime
     model.updateCoordinatePlanets();
     for(let i = 0; i < model.planets.length; ++i){
-        
-    context.beginPath();
+        context.beginPath();
         currPlanet = model.planets[i];
         paintPlanet(currPlanet.x, currPlanet.y, currPlanet.radius, 'red');
         context.fill();
     }
+    
+    document.getElementById("TotalEnergy").value = model.totalEnergy();
+    document.getElementById("CurrentTime").value = model.currentTime;
+    [document.getElementById("CenterMassVx").value, document.getElementById("CenterMassVy").value]  = model.centerMassV();
 }
 
 const MAX_LENGTH = Math.pow(10, 12);

@@ -8,31 +8,53 @@
 </head>
 <body>
     <div style="display: flex;">
-        <table class="table-for-params">
-            <thead>
-                <tr>
-                    <th><div class="header-label">X</div><input type="number" id="X"></th>
-                    <th><div class="header-label">Y</div><input type="number" id="Y"></th>
-                    <th><div class="header-label">Vx</div><input type="number" id="Vx"></th>
-                    <th><div class="header-label">Vy</div><input type="number" id="Vy"></th>
-                    <th><div class="header-label">Масса</div><input type="number" id="M"></th>
-                    <th><div class="header-label">ID</div><input type="submit" value="add" onclick="addrow()"></th>
-                    <th><input type="submit" value="ok" onclick="show()"></th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-        <div style="display: flex; flex-direction: column;">
-            <label> <input type="radio" checked onclick="addSheme('E')"> Эйлера</label>
-            <label> <input type="radio" onclick="addSheme('E-K')"> Эйлера-Крамера</label>
+        <div>
+            <div style="display: flex;">
+                <div style="display: flex; flex-direction: column;">
+                    <label> <input type="radio" id="E" value="E" checked onclick="addSheme('E')"> Эйлера</label>
+                    <label> <input type="radio" id="E-K" value="E-K" onclick="addSheme('E-K')"> Эйлера-Крамера</label>
+                </div>
+                <div style="display: flex; flex-direction: column;">
+                    <label> <input type="radio" id="V" value="V" onclick="addSheme('V')"> Верле</label>
+                    <label> <input type="radio" id="B" value="B" onclick="addSheme('B')"> Бимана</label>
+                </div>
+                <div style="display: flex; flex-direction: column; margin: 3px 5px 5px 5px;">
+                    <label> Шаг по времени: </label>
+                    <label> Время моделирования: </label>
+                </div>
+                <div style="display: flex; flex-direction: column;">
+                    <input type="text" id="dt">
+                    <input type="text" id="time">
+                </div>
+                <input type="submit" value="ok" style="height: 25px; margin-left: 5px;" onclick="show()">
+            </div>
+                <table class="table-for-params">
+                    <thead>
+                        <tr>
+                            <th ><div class="header-label">X</div><input style="width: 125px;" type="number" id="X"></th>
+                            <th><div class="header-label">Y</div><input style="width: 125px;" type="number" id="Y"></th>
+                            <th><div class="header-label">Vx</div><input style="width: 125px;" type="number" id="Vx"></th>
+                            <th><div class="header-label">Vy</div><input style="width: 125px;" type="number" id="Vy"></th>
+                            <th><div class="header-label">Масса</div><input style="width: 125px;" type="number" id="M"></th>
+                            <th><div>ID</div><input type="submit" value="add" onclick="addrow()"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
         </div>
-        <div style="display: flex; flex-direction: column;">
-            <label> <input type="radio" onclick="addSheme('V')"> Верле</label>
-            <label> <input type="radio" onclick="addSheme('B')"> Бимана</label>
+        <div style="display: flex; margin-left: 50px;">
+            <div>
+                <div class="header-label">Общая Эенргия</div><input style="width: 200px;" type="number" id="TotalEnergy" readonly>
+                <div class="header-label">Текущее время</div><input style="width: 200px;" type="number" id="CurrentTime" readonly>
+            </div>
+            <div style="margin-left:50px;">
+                <div class="header-label">Центр масс Vx</div><input style="width: 200px;" type="number" id="CenterMassVx" readonly>
+                <div class="header-label">Центр масс Vy</div><input style="width: 200px;" type="number" id="CenterMassVy" readonly>
+            </div>
         </div>
     </div>
-    <canvas class="plot">
+        <canvas class="plot">
     </canvas>
     <script src = "index.js"></script>
 </body>
