@@ -1,4 +1,3 @@
-//вопрос по скорости в кин энергии
 //logic
 class Planet {
     x;
@@ -12,7 +11,6 @@ class Planet {
     lastAx;
     lastAy;
     mass;
-    radius;
     firstStep = true;
 
     constructor(x, y, Vx, Vy, mass) {
@@ -25,10 +23,9 @@ class Planet {
         this.Ax = 0;
         this.Ay = 0;
         this.mass = mass;
-        this.radius = Math.ceil(mass * 5 / maxWeight);
     }
 
-    setSpeed([x, y]){
+    setCoordinates([x, y]){
         this.lastX = this.x;
         this.lastY = this.y;
         this.x = x;
@@ -51,6 +48,12 @@ class Planet {
             }
         }
         [this.Ax, this.Ay] = [-ax, -ay];
+    }
+
+    
+    setMass(){
+        const c = 299792458;
+        this.mass = this.mass / Math.sqrt(1 - Math.pow(Math.sqrt(this.Vx * this.Vx + this.Vy * this.Vy), 2) / (c * c))
     }
 }
 
@@ -90,9 +93,11 @@ class Model {
             planets[i].calaculateAccelerationXY(this.planets);        
             
             this.defferentScheme.setVarsForNextStep(this.planets[i]);
-            this.planets[i].setSpeed(this.defferentScheme.calculateCoordinate());
+            this.planets[i].setCoordinates(this.defferentScheme.calculateCoordinate());
 
             [planets[i].Vx, planets[i].Vy] = this.defferentScheme.calculateSpeed();
+
+            this.planets[i].setMass()
         }
     }    
 
@@ -117,7 +122,7 @@ class Model {
                             Math.sqrt(Math.pow(planets[j].x - planets[i].x, 2) + Math.pow(planets[j].y - planets[i].y, 2));
                 }
             }
-            totalEnergy += planets[i].mass * Math.sqrt(Math.pow(planets[i].Vx, 2) + Math.pow(planets[i].Vx, 2)) / 2
+            totalEnergy += planets[i].mass * Math.sqrt(Math.pow(planets[i].Vx, 2) + Math.pow(planets[i].Vy, 2)) / 2
         }
         return totalEnergy;
     }
@@ -228,7 +233,6 @@ class EilerKramerScheme extends Scheme {
         model = new Model(document.getElementById("time").value, document.getElementById("dt").value, planets, typeOfSheme);
         maxWidth *= 5;
         tick();
-        //paintPlanets();
     }
 
     function addSheme(shemeName) {
@@ -241,36 +245,14 @@ class EilerKramerScheme extends Scheme {
         typeOfSheme = shemeName;
     }
 
-let canvas = document.querySelector("canvas");
-context = canvas.getContext('2d');
-// 1.9891e30  | 1.496e11 0 0 29782 5.9722e24 | 57.91e9 0 0 47400 3.33e23
-//3600 31536000
-let model;
-let planets = [];
-let typeOfSheme = "E";
-
-let maxWidth = 0; //для задания границ плота
-let maxWeight = 0; //для задания радиуса планет
-
 function tick() {
-    // q++;
-    // context.font = "700 5px Roboto, sans-serif";
-    // context.fillStyle = "#000";
-    // context.textAlign = 'center';
-    // context.textBaseline = 'middle';
-    // context.fillText(q, 200, 100)
     paintPlanets();
     if(model.currentTime <= model.time)
         requestAnimationFrame(tick);
 }
 
 function paintPlanets() {
-    //while(model.currentTime < model.time) {    
-    // setTimeout( function ds(){ 
-    //         context.fill();
-    //         context.clearRect(0, 0, canvas.width, canvas.height);
     for(let speed = 0; speed < document.getElementById("sliderRange").value; ++speed){
-        
         context.fill();
         context.clearRect(0, 0, canvas.width, canvas.height);
         model.updateCoordinatePlanets();
@@ -284,8 +266,6 @@ function paintPlanets() {
         document.getElementById("TotalEnergy").value = model.totalEnergy();
         document.getElementById("CurrentTime").value = model.currentTime;
         [document.getElementById("CenterMassVx").value, document.getElementById("CenterMassVy").value]  = model.centerMassV(); 
-    //    }, 100);
-        //}
     }
 }
 
@@ -296,9 +276,23 @@ function paintPlanet(x, y, radius, color){
     context.fillStyle = color;
 }
 
+let canvas = document.querySelector("canvas");
+context = canvas.getContext('2d');
+// 1.9891e30  | 1.496e11 0 0 29782 5.9722e24 | 57.91e9 0 0 47400 3.33e23
+//3600 31536000
+let model;
+let planets = [];
+let typeOfSheme = "E";
+
+let maxWidth = 0; //для задания границ плота
+let maxWeight = 0; //для задания радиуса планет
+
+
+
+
 ////sliderRange
-var rangeslider = document.getElementById("sliderRange"); 
-var output = document.getElementById("demo"); 
+let rangeslider = document.getElementById("sliderRange"); 
+let output = document.getElementById("demo"); 
 output.innerHTML = rangeslider.value; 
   
 rangeslider.oninput = function() { 
